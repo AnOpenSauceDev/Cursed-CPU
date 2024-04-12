@@ -10,11 +10,10 @@
 // i hope to write a basic semi unix-like OS in the far, far future.
 
 // design of a byte in ROM
-// 
+// DUMMY is essentially wasted, i used to have a dual-register bank setup, but got rid of it for what i thought would be "useful".
 // REGISTER |r1| DUMMY |dum| INSTRUCTION |---|
 //           00|       |000|              000
 // {00, 01, 10, 11}, 4 registers
-// so, 0011|0001
 
 
 typedef struct Program{
@@ -27,7 +26,7 @@ unsigned char memory[256];
 
 enum INSTRUCTIONS{ // can be 9 instructions
     NOP = 0, // do nothing
-    ADD = 1, // add r1 and 
+    ADD = 1, // add r1 and what dummy equals (vulnerable to buffer overflow, fix in v1.5/2)
     SUB = 2, // subtract
     JMP = 3, // jump to address, jumps to binary value of next address
     PRT = 4, // print data in register number
@@ -99,13 +98,6 @@ int main(){
 
    
         refresh();
-
-        if(address == 13){
-            printw("here we go!");
-        }
-        if(address == 14){
-            printw("what");
-        }
 
 
         if(memory[address] == 0b00111000){
@@ -203,7 +195,7 @@ int main(){
             }
         }
 
-        // sets register 3 
+        // sets math register
         if(instruction == ADD){
             mthRegister = registers[register1] + registers[dummy];
         }

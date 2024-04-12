@@ -9,4 +9,4 @@ Currently this is V1. V2 will be a far better CPU design, as i was just coding a
 
 Please do not look at this atrocity, it's ugly and i can't be bothered to polish it yet with switch statements, masking, headers and so on.
 
-requires ncurses-dev, and is kinda broken as of now. Once V2 is done, it will run a minimal POSIX-compliant OS.
+requires ncurses-dev, and is kinda broken as of now (thanks, ncurses). Once V2 is done, it will run a minimal POSIX-compliant OS.
