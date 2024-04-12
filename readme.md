@@ -1,6 +1,8 @@
 # Cursed-CPU
 
 Cursed CPU implementation (it _can_ do "Hello World!")
+Comes with a whopping 256 bytes of RAM, 7 instructions, and ~~5~~ 4 general-purpose registers!
+
 I didn't look at other people's implementations so I could become more knowledgeable about low-level programming.
 
 Currently this is V1. V2 will be a far better CPU design, as i was just coding as i went with this.
