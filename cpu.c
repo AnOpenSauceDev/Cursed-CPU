@@ -131,12 +131,17 @@ int main(){
     prog1.rom[20] = PR2;
     prog1.rom[21] = 0x21; // !
     prog1.rom[22] = 0x0A; // newline 
+    prog1.rom[23] = JM2;
+    prog1.rom[24] = 0x0;
+    prog1.rom[25] = 0x0;
 
 
     //load ROM into RAM
     memcpy(memory,prog1.rom,sizeof(prog1.rom));
 
     // unlike V1, this will now stop at the end of memory.
+
+    int justJumped = FALSE;
 
     while (address <= sizeof(memory) / sizeof(memory[0]))
     {
@@ -157,11 +162,18 @@ int main(){
             printf("%c",memory[address + 2]);
             address += 2;
             break;
+        case JM2:
+            justJumped = TRUE;
+            break;
         default:
             
         }
 
+        if(justJumped != TRUE){
         address++;
+        }else{
+            justJumped = FALSE;
+        }
 
     }
     
