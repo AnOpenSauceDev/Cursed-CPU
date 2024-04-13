@@ -9,34 +9,84 @@
 //Quirkix V1, first edition, the whole DUMMY thing is... dummy, so i'm going to write V2 later and make it suck less.
 // i hope to write a basic semi unix-like OS in the far, far future.
 
-// design of a byte in ROM
-// DUMMY is essentially wasted, i used to have a dual-register bank setup, but got rid of it for what i thought would be "useful".
-// REGISTER |r1| DUMMY |dum| INSTRUCTION |---|
-//           00|       |000|              000
-// {00, 01, 10, 11}, 4 registers
+// the WHOLE byte is now just an instruction. My old cpu concept was novel, but also way too overcomplicated. 255 instructions? Heck yeah!
 
-
+// mistake i made. 1024 means that there are 1024 elements including 0, not 1024 plus 0
 typedef struct Program{
-    unsigned char rom[256]; // 256b of program memory
+    unsigned char rom[1024]; // 1024b of program memory
 } Program;
 
-unsigned char address; // can address 256 bytes
+uint16_t address; // can address 65535 bytes (65k of ram) this unsigned 16-bit int makes us... 16 bit!
 
-unsigned char memory[256];
+unsigned char memory[4096]; // 4K of base ram
 
-enum INSTRUCTIONS{ // can be 9 instructions
+// instead of having "Add Register A and B!", let's just... select two registers to mess with
+
+enum INSTRUCTIONS{ // 255 instructions (more that you'll ever need :3 )
     NOP = 0, // do nothing
-    ADD = 1, // add r1 and what dummy equals (vulnerable to buffer overflow, fix in v1.5/2)
-    SUB = 2, // subtract
-    JMP = 3, // jump to address, jumps to binary value of next address
-    PRT = 4, // print data in register number
-    LON = 5, // load next value to register number defined (LOad Next)
-    WRT = 6, // write value in register to next address
-    POL = 7, // poll user input of char
+
+    //  Selection for A
+
+    SAA = 1, // Select Operation Register A: A
+    SAB = 2, // Select Operation Register A: B
+    SAC = 3,
+    SAD = 4, // :(
+    SAE = 5, 
+    SAF = 6, 
+    SAG = 7, 
+    SAH = 8, 
+
+    // Selection for B
+
+    SBA = 1, // Select Operation Register B: A
+    SBB = 2, // Select Operation Register B: B
+    SBC = 3,
+    SBD = 4,
+    SBE = 5, 
+    SBF = 6, 
+    SBG = 7, 
+    SBH = 8, 
+
+    // Jumping, Loading, Storing, Printing, IO
+
+    // Jumps
+    JMA = 9, // jump to whatever Register A is equal to.
+    JMB = 10, //  jump to whatever Register B is equal to.
+    JM2 = 11, // jumps to whatever the next 2 addresses define 
+    J2C = 12, // Jump If Register A + B overflow, reads next 2 addresses
+    
+    // Loads
+    LNA = 13, // Load Next A, loads next 2 bytes immediately from the next 2 addresses into selected register A.
+    LNB = 14, // Load Next B, loads next 2 bytes immediately from the next 2 addresses into selected register B.
+    LXP = 15, // Load from expansion port into the expansion register. (not finished)
+
+    // writes/polls
+    PRB = 16, // print to terminal (both registers)
+    WRA = 17, // Write register A to next 2 addresses
+    WRB = 18, // Write register B to next 2 addresses
+    WSR = 19, // Write Sum Register to next two addresses
+    PRA = 20, // Print register A's contents
+    PRB = 21, // Print register B's contents
+    PLA = 22, // Poll two chars of input into register A
+    PLB = 23, // Poll two chars of input into register B
+    PL2 = 24, // Poll four chars of input into register A AND B
+    
+
+    // SUM register ops
+    LSA = 25, // Load Sum A, loads sum register into selected register A.
+    LSB = 26, // Load Sum B, loads sum register into selected register B.
+
+    // Maths
+
+    ADD = 27, // add Selection A and B together, setting the Sum Register
+    SUB = 28, // subtract Selection A and B, setting the Sum Register as the result.
 };
 
-unsigned char registers[4]; // 4 gp registers for whatever
-unsigned char mthRegister = 0;
+uint16_t expansionRegister;
+
+uint16_t sumRegister;
+
+uint16_t registers[8]; // 8 16-bit gp registers for whatever, goes from A to H.
 
 int main(){
 
