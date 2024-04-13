@@ -1,1 +1,1 @@
-gcc cpu.c -lncurses -Wall
+gcc cpu.c -lncurses -Wall -Wextra

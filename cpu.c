@@ -16,7 +16,7 @@ typedef struct Program{
     unsigned char rom[1024]; // 1024b of program memory
 } Program;
 
-uint16_t address; // can address 65535 bytes (65k of ram) this unsigned 16-bit int makes us... 16 bit!
+uint16_t address = 0; // can address 65535 bytes (65k of ram) this unsigned 16-bit int makes us... 16 bit!
 
 unsigned char memory[4096]; // 4K of base ram
 
@@ -38,244 +38,132 @@ enum INSTRUCTIONS{ // 255 instructions (more that you'll ever need :3 )
 
     // Selection for B
 
-    SBA = 1, // Select Operation Register B: A
-    SBB = 2, // Select Operation Register B: B
-    SBC = 3,
-    SBD = 4,
-    SBE = 5, 
-    SBF = 6, 
-    SBG = 7, 
-    SBH = 8, 
+    SBA = 9, // Select Operation Register B: A
+    SBB = 10, // Select Operation Register B: B
+    SBC = 11,
+    SBD = 12,
+    SBE = 13, 
+    SBF = 14, 
+    SBG = 15, 
+    SBH = 16, 
 
     // Jumping, Loading, Storing, Printing, IO
 
     // Jumps
-    JMA = 9, // jump to whatever Register A is equal to.
-    JMB = 10, //  jump to whatever Register B is equal to.
-    JM2 = 11, // jumps to whatever the next 2 addresses define 
-    J2C = 12, // Jump If Register A + B overflow, reads next 2 addresses
+    JMA = 17, // jump to whatever Register A is equal to.
+    JMB = 18, //  jump to whatever Register B is equal to.
+    JM2 = 19, // jumps to whatever the next 2 addresses create an address out of.
+    J2C = 20, // Jump If Register A + B overflow, reads next 2 addresses.
     
     // Loads
-    LNA = 13, // Load Next A, loads next 2 bytes immediately from the next 2 addresses into selected register A.
-    LNB = 14, // Load Next B, loads next 2 bytes immediately from the next 2 addresses into selected register B.
-    LXP = 15, // Load from expansion port into the expansion register. (not finished)
+    LNA = 21, // Load Next A, loads next 2 bytes immediately from the next 2 addresses into selected register A.
+    LNB = 22, // Load Next B, loads next 2 bytes immediately from the next 2 addresses into selected register B.
+    LXP = 23, // Load from expansion port into the expansion register. (not finished)
 
     // writes/polls
-    PRB = 16, // print to terminal (both registers)
-    WRA = 17, // Write register A to next 2 addresses
-    WRB = 18, // Write register B to next 2 addresses
-    WSR = 19, // Write Sum Register to next two addresses
-    PRA = 20, // Print register A's contents
-    PRB = 21, // Print register B's contents
-    PLA = 22, // Poll two chars of input into register A
-    PLB = 23, // Poll two chars of input into register B
-    PL2 = 24, // Poll four chars of input into register A AND B
+    PAB = 24, // print to terminal (both registers)
+    WRA = 25, // Write register A to next 2 addresses
+    WRB = 26, // Write register B to next 2 addresses
+    WSR = 27, // Write Sum Register to next two addresses
+    PRA = 28, // Print register A's contents
+    PRB = 29, // Print register B's contents
+    PLA = 30, // Poll two chars of input into register A
+    PLB = 31, // Poll two chars of input into register B
+    PL2 = 32, // Poll four chars of input into register A AND B
     
 
     // SUM register ops
-    LSA = 25, // Load Sum A, loads sum register into selected register A.
-    LSB = 26, // Load Sum B, loads sum register into selected register B.
+    LSA = 33, // Load Sum A, loads sum register into selected register A.
+    LSB = 34, // Load Sum B, loads sum register into selected register B.
 
     // Maths
 
-    ADD = 27, // add Selection A and B together, setting the Sum Register
-    SUB = 28, // subtract Selection A and B, setting the Sum Register as the result.
+    ADD = 35, // add Selection A and B together, setting the Sum Register
+    SUB = 36, // subtract Selection A and B, setting the Sum Register as the result.
+    MUL = 37, // multiply Selection A and B, setting the Sum Register as the result.
+    DIV = 38, // Divide Selection A and B, setting the Sum Register as the result.
+
+    //other
+    LJA = 39, // load next 2 addresses to register selection A, then jump past. 
+    LJB = 40, // load next 2 addresses to register selection B, them jump past.
+    PR2 = 41, // print next 2 addresses, while skipping them.
 };
 
 uint16_t expansionRegister;
-
+uint16_t selectedReigsterA = 0;
+uint16_t selectedReigsterB = 0;
 uint16_t sumRegister;
 
-uint16_t registers[8]; // 8 16-bit gp registers for whatever, goes from A to H.
+uint16_t registersA[8]; // 8 16-bit gp registers for whatever, goes from A to H. might split this into. applies for selections to A
+uint16_t registersB[8]; // 8 16-bit gp registers for whatever, goes from A to H. might split this into. applies for selections to B
+
+
 
 int main(){
 
     Program prog1;
 
-    // first instruction, load data into register
-    prog1.rom[0] = 0b00000101;  // |00| |000| |101| (LON) into r0
+    prog1.rom[0] = SAA; // set register A to A in A bank
+    prog1.rom[1] = SBA; // set register B to A in B bank
 
-    prog1.rom[2] = 0b01000101;  // |01| |000| |101| (LON) into r1
+    // just realized i could've used actual strings for this, oh well.
 
-    prog1.rom[4] = 0b10000101;  // |10| |000| |101| (LON) into r2
+    prog1.rom[2] = PR2;
+    prog1.rom[3] = 0x48; // H
+    prog1.rom[4] = 0x65; // E
+    prog1.rom[5] = PR2;
+    prog1.rom[6] = 0x6C; // L
+    prog1.rom[7] = 0x6C; // L
+    prog1.rom[8] = PR2;
+    prog1.rom[9] = 0x6F; // O
+    prog1.rom[10] = 0x2C; // ,
 
-    prog1.rom[6] = 0b11000101;  // |11| |000| |101| (LON) into r3
+    prog1.rom[11] = PR2;
+    prog1.rom[12] = 0x20; // 
+    prog1.rom[13] = 0x57; // W
 
-    //print stuff
+    prog1.rom[14] = PR2;
+    prog1.rom[15] = 0x6F; // O
+    prog1.rom[16] = 0x72; // R
+    prog1.rom[17] = PR2;
+    prog1.rom[18] = 0x6C; // L
+    prog1.rom[19] = 0x64; // D
+    prog1.rom[20] = PR2;
+    prog1.rom[21] = 0x21; // !
+    prog1.rom[22] = 0x0A; // newline 
 
-    prog1.rom[8] = 0b00000100; // |00| |000| |100| (PRT) print out reg 0
-    prog1.rom[9] = 0b01000100; // |01| |000| |100| (PRT) print out reg 1
-    prog1.rom[10] = 0b10000100; // |10| |000| |100| (PRT) print out reg 2
-    prog1.rom[11] = 0b11000100; // |10| |000| |100| (PRT) print out reg 3
-
-
-    prog1.rom[12] = 0b00000110; // |00| |000| |110| (POL) poll input for register 0
-
-    prog1.rom[11] = 0b00000100; // |10| |000| |100| (PRT) print out reg 0
-
-    prog1.rom[13] = 0b00111000; // kill process
-
-    //addresses for text
-    prog1.rom[1] = 0b01010111; // W
-    prog1.rom[3] = 0b01001000; // H
-    prog1.rom[5] = 0b01011001; // Y... did i make this?
-    prog1.rom[7] = 0x0A; // newline
 
     //load ROM into RAM
     memcpy(memory,prog1.rom,sizeof(prog1.rom));
 
-    // end of ROM block
+    // unlike V1, this will now stop at the end of memory.
 
-
-    // should jump to position and execute
-    int shouldJump = FALSE;
-
-    // should load the next address and move on
-    int shouldLoad = FALSE;
-
-    // the register we are loading data into
-    int loadRegister = 0; 
-
-    //ncurses being ncurses part 1
-    initscr();
-    cbreak();
-    noecho();
-    timeout(-1); //makes getch block
-
-    char t = getch();
-
-    for (address = 0x0; address < sizeof(memory)/sizeof(memory[0]); address++){
-
-   
-        refresh();
-
-
-        if(memory[address] == 0b00111000){
-            printw("00111000 detected! KILLING!");
-            refresh();
-            return 0;
-        }
-
-        if(shouldJump == TRUE){
-            shouldJump = FALSE;
-            address = memory[address];
-        } // keep going
-
-        if(shouldLoad == TRUE){
-            shouldLoad = FALSE;
-            registers[loadRegister] = memory[address];
-            continue; // STOP! This could be dangerous to run!
-        }
-
-            // x & 1 == Least Significant Bit (LSB)
-            // >> 1 moves byte right by 1 (0b00000010 becomes 0b00000001)
-
-        // add first 3 bits up to get instruction number, multiply so they are in the right spot
-        int instructionBinary = (memory[address] & 1) + (((memory[address] >> 1) & 1) * 10) + (((memory[address] >> 2) & 1) * 100);
-
-        int instruction = 0;
-
-        int base = 1;
-
-        // convert the binary number to a real number #1
-        while (instructionBinary > 0)
-        {
-                
-                int digit = instructionBinary % 10; 
-                instruction += digit * base; // convert a binary digit to a decimal value
-                instructionBinary /= 10;
-                base *= 2; 
-    
-        }
-        
-
-        // 4th shift puts us in the dummy space
-        int dummyBinary =  ((memory[address] >> 3) & 1) + (((memory[address] >> 4) & 1) * 10) + (((memory[address] >> 5) & 1) * 100);
-        
-        int dummy = 0;
-
-        // convert the binary number to a real number #2
-        while (dummyBinary > 0)
-        {
-                
-                int digit = dummyBinary % 10; 
-                dummy += digit * base;
-                dummyBinary /= 10;
-                base *= 2; 
-    
-        }
+    while (address <= sizeof(memory) / sizeof(memory[0]))
+    {
 
         
-        // and the 7th shift leaves only the last number in the byte
-        int registerBinary = ((memory[address] >> 6) & 1) + (((memory[address] >> 7) & 1) * 10);
-
-        base = 1;
-
-        int register1 = 0;
-
-        // convert the binary number to a real number #3
-        while (registerBinary > 0)
+        int instruction = memory[address]; // we dont need to convert from binary.
+        
+        switch (instruction)
         {
-                
-                int digit = registerBinary % 10; 
-                register1 += digit * base;
-                registerBinary /= 10;
-                base *= 2; 
-    
+        case SAA:
+            selectedReigsterA = 0;
+            break;
+        case SBA:
+            selectedReigsterB = 0;
+            break;
+        case PR2:
+            printf("%c",memory[address + 1]);
+            printf("%c",memory[address + 2]);
+            address += 2;
+            break;
+        default:
+            
         }
 
-        // load next
-        if(instruction == LON){
-            shouldLoad = TRUE;
-            loadRegister = register1;
-        }
-
-        //jump
-        if(instruction == JMP){
-            shouldJump = TRUE;
-        }
-
-        // write register (can write to 0 if it overflows!)
-        // using dummy writes mthRegister two spaces ahead. Why? Why not?
-        if(instruction == WRT){
-            if(dummy == 0){
-            memory[address++] = registers[register1];
-            }else{
-                memory[address + 2] = mthRegister;
-            }
-        }
-
-        // sets math register
-        if(instruction == ADD){
-            mthRegister = registers[register1] + registers[dummy];
-        }
-
-        if(instruction == SUB){
-            mthRegister = registers[register1] - registers[dummy];
-        }
-
-        if(instruction == POL){
-
-            // ncurses being ncurses part 2
-            char data = getch();
-            if(data != ERR){
-                registers[register1] = data;
-            }else{
-                return ERR;
-            }
-            refresh();
-  
-        }
-
-
-        // print impl
-        if(instruction == PRT){
-            printw("%c", registers[register1]);   
-            refresh();
-        }
+        address++;
 
     }
-    endwin();
     
 
 }
