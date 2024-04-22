@@ -124,25 +124,31 @@ int main(int argc, char *argv[]){
             
             if(tokenized != NULL){
                 
-            if(strcmp(tokenized, "DEFINE") == 0){
+            if(!strcmp(tokenized, "DEFINE")){
 
-                printf("creating def!");
+                               printf("creating def!"); // I hate C. I love how doing !strcmp works, but strcmp == 0 segfaults
 
                 getDef = true; // prepare for naming
-                continue; // loop back to start
+                
+                continue;
+
+            }else{
+                
             }
             
-            
-
+    
 
             
             // when we find an assignment...
-            if(strcmp(tokenized, "AS") == 0){
+            if(!strcmp(tokenized, "AS")){
 
                 printf("creating def value!");
 
                 getValue = true;
-                continue; // loop back to start
+
+                continue;
+
+            }else{
             }
             
             }
