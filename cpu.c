@@ -162,9 +162,6 @@ int main(){
             printf("%c",memory[address + 2]);
             address += 2;
             break;
-        case JM2:
-            justJumped = TRUE;
-            break;
         default:
             
         }

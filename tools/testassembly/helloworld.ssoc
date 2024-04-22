@@ -1,0 +1,12 @@
+// double slashes are comments.
+// a comma appends two things together
+// all DEFINE's must be made before MAIN.
+
+DEFINE HelloWorld AS "Hello, World!", 0xA
+
+// MAIN is your entrypoint
+FUNCTION MAIN:
+    PRINT HelloWorld // print contents of data at HelloWorld
+    JUMP MAIN // jump back to MAIN
+    END; // end of a function. Stop execution here.
+

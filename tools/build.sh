@@ -1,0 +1,1 @@
+gcc -g -fno-builtin-strcmp assembler.c -o assembler -Wall -Wextra
